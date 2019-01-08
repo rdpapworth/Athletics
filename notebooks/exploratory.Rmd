@@ -8,22 +8,37 @@ output:
 
 ```{r set-up}
 library(tidyverse)
+library(lubridate)
 
 athletes <- read_csv("https://raw.githubusercontent.com/rdpapworth/Athletics/master/data/athletes.txt",
                          col_types = cols(dob = col_date(format = "%Y%m%d")))
 
+performances <- read_csv("https://raw.githubusercontent.com/rdpapworth/Athletics/master/data/performances.txt",
+                         col_types = cols(dop = col_date(format = "%Y%m%d")))
+
+results <- inner_join(performances, athletes, by=c("athlete_id"="id"))
 ```
 
-## Is there a Relative Age Effect
+## Is there a Relative Age Effect?
 
 The results are for top ranked athletes nationally. Since age-groups are based on a September cut-off, there seems to be a selection bias.
 
 ```{r month_of_birth}
-library(lubridate)
-
 athletes %>%
   mutate(mob = month(dob, label = T)) %>%
   ggplot(aes(x = mob)) +
   geom_bar()
 ```
 
+## Does it differ by event?
+
+Quick visualisation suggests effect is apparent in all the available events (I thought I'd downloaded more. Will check archived version of download code)
+
+Is there a way to identify whether one event is more impacted than another?
+```{r by_event}
+results %>%
+  mutate(mob = month(dob, label = T)) %>%
+  ggplot(aes(x = mob)) +
+  geom_bar() +
+  facet_grid(event_name ~ .)
+```
