@@ -42,3 +42,20 @@ results %>%
   geom_bar() +
   facet_grid(event_name ~ .)
 ```
+
+
+## Have performances improved?
+```{r yoy_improvement}
+
+ts <- results %>%
+  filter(event_name %in% c('400') & as.numeric(dop - dob)/365.25 >= 18.0) %>%
+  mutate(yr = lubridate::year(dop), performance = as.numeric(performance)) %>%
+  group_by(sex, yr) %>%
+  top_n(-20,performance) %>%
+  summarise(ave_performance = mean(performance)) %>%
+  arrange(yr)
+
+ggplot(ts, aes(x=yr)) + 
+  geom_line(aes(y=ave_performance, col=sex)) 
+```
+Seems to be a general downward trend at the top. Will this hold at middle/botom. Need to figure out how to properly plot ts (breaks and labels). Would be good to show range of results (boxplot with year on x and perofrmance on y?) 
